@@ -24,4 +24,7 @@
       "expo-status-bar"
     ]
   }
+  "experiments": {
+  "baseUrl": "/Restaurante_el_sabor"
+}
 }
