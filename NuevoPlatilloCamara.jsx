@@ -92,10 +92,11 @@ export default function NuevoPlatilloCamara({ onCerrar, onGuardar }) {
 
 const s = StyleSheet.create({
   pantalla: { flex: 1, minHeight: 0 }, contenido: { padding: 16, paddingBottom: 32, gap: 12 },
-  titulo: { fontSize: 23, fontWeight: '800', color: '#1E1E2E' }, aviso: { color: '#55596B', lineHeight: 19 },
-  box: { padding: 12, borderRadius: 12, backgroundColor: '#FFFFFF', gap: 10 }, camara: { width: '100%', height: 260, borderRadius: 10 }, foto: { width: '100%', height: 220, borderRadius: 10 },
-  entrada: { minHeight: 48, padding: 12, backgroundColor: '#FFFFFF', borderColor: '#B9BFCC', borderWidth: 1, borderRadius: 9, fontSize: 16 }, multilinea: { minHeight: 90, textAlignVertical: 'top' },
-  boton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, borderRadius: 9, backgroundColor: '#E63946' }, botonTexto: { color: '#FFFFFF', fontWeight: '800' },
-  secundario: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 14, borderRadius: 9, backgroundColor: '#E8F2FF' }, secundarioTexto: { color: '#0759A5', fontWeight: '700' },
-  deshabilitado: { opacity: 0.5 }, mensaje: { color: '#15334E', fontWeight: '700', lineHeight: 20 },
+  titulo: { fontSize: 23, fontWeight: '800', color: '#F2E6C9' }, aviso: { color: '#C7A978', lineHeight: 19 },
+  box: { padding: 12, borderRadius: 12, backgroundColor: '#F2E6C9', gap: 10 }, camara: { width: '100%', height: 260, borderRadius: 10 }, foto: { width: '100%', height: 220, borderRadius: 10 },
+  entrada: { minHeight: 48, padding: 12, backgroundColor: '#F2E6C9', borderColor: '#805600', borderWidth: 1, borderRadius: 9, fontSize: 16 }, multilinea: { minHeight: 90, textAlignVertical: 'top' },
+  boton: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, borderRadius: 9, backgroundColor: '#8A6500' }, botonTexto: { color: '#F2E6C9', fontWeight: '800' },
+  secundario: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 14, borderRadius: 9, backgroundColor: '#493016' }, secundarioTexto: { color: '#F3B900', fontWeight: '700' },
+  deshabilitado: { opacity: 0.5 }, mensaje: { color: '#F2E6C9', fontWeight: '700', lineHeight: 20 },
 });
+

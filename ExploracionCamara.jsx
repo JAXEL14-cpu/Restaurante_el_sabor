@@ -8,7 +8,6 @@ export default function ExploracionCamara({ onCerrar }) {
   const [error, setError] = useState('');
   const [solicitando, setSolicitando] = useState(false);
 
-
   async function solicitar() {
     setError('');
     setSolicitando(true);
@@ -71,6 +70,7 @@ export default function ExploracionCamara({ onCerrar }) {
 const s = StyleSheet.create({
   panel: { flex: 1, padding: 16, minHeight: 0 },
   titulo: { fontSize: 22, fontWeight: '700', marginVertical: 12 },
-  boton: { padding: 12, marginVertical: 8, backgroundColor: '#DDECEF', borderRadius: 8 },
+  boton: { padding: 12, marginVertical: 8, backgroundColor: '#493016', borderRadius: 8 },
   camara: { height: 260, marginTop: 12 },
 });
+
