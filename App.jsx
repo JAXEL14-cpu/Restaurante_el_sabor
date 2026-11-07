@@ -48,7 +48,8 @@ export default function App() {
   const { width } = useWindowDimensions();
   const resumenCompacto = width < 600;
   const pestanasCompactas = width < 900;
-  const [pestana, setPestana] = React.useState('menu');
+  const [pestana, setPestana] = React.useState('inicio');
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [favoritos, setFavoritos] = useState([]);
   const [favoritosListos, setFavoritosListos] = useState(false);
   const [estadoFavoritos, setEstadoFavoritos] = useState('Cargando favoritos...');
@@ -60,11 +61,13 @@ export default function App() {
   const catalogo = [...platosNuevos, ...platos];
   const cantidadCarrito = Object.values(carrito).reduce((total, cantidad) => total + cantidad, 0);
   const definicionesPestanas = [
+    { id: 'inicio', texto: 'Inicio' },
     { id: 'menu', texto: 'Menú' },
     { id: 'sensores', texto: 'Sensores' },
     { id: 'nuevo', texto: 'Nuevo plato' },
     { id: 'carrito', texto: `Carrito (${cantidadCarrito})` },
     { id: 'asistente', texto: 'Asistente' },
+    { id: 'contacto', texto: 'Contacto' },
   ];
 
   let platosVisibles = catalogo;
@@ -217,26 +220,28 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.encabezado}>
-        <Text style={styles.titulo}>🍽️ Restaurante El Sabor</Text>
-        <Text style={styles.subtitulo}>Menú · {catalogo.length} platos</Text>
+      <View style={styles.barraSuperior}>
+        <Pressable accessibilityRole="button" accessibilityLabel={menuAbierto ? 'Cerrar navegación' : 'Abrir navegación'} style={styles.botonMenu} onPress={() => setMenuAbierto((abierto) => !abierto)}>
+          <Text style={styles.iconoMenu}>{menuAbierto ? '×' : '☰'}</Text>
+        </Pressable>
+        {width < 600 && <Text style={styles.marcaMovil}>RESTAURANTE <Text style={styles.marcaDorada}>EL SABOR</Text></Text>}
       </View>
 
-      <View style={[styles.pestanas, pestanasCompactas && styles.pestanasCompactas]}>
-        {definicionesPestanas.map((elemento) => (
-          <Pressable
-            key={elemento.id}
-            accessibilityRole="tab"
-            accessibilityLabel={elemento.texto}
-            accessibilityState={{ selected: pestana === elemento.id }}
-            hitSlop={6}
-            style={[styles.pestana, pestanasCompactas && styles.pestanaCompacta, pestana === elemento.id && styles.pestanaActiva]}
-            onPress={() => setPestana(elemento.id)}
-          >
-            <Text style={[styles.textoPestana, pestana === elemento.id && styles.textoPestanaActivo]}>{elemento.texto}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {menuAbierto && <View style={styles.capaMenu}>
+        <Pressable style={styles.fondoMenu} accessibilityRole="button" accessibilityLabel="Cerrar menú" onPress={() => setMenuAbierto(false)} />
+        <View style={styles.panelMenu}>
+          <Text style={styles.logoMenu}>RESTAURANTE <Text style={styles.marcaDorada}>EL SABOR</Text></Text>
+          {definicionesPestanas.map((elemento) => (
+            <Pressable key={elemento.id} accessibilityRole="button" style={[styles.itemMenu, pestana === elemento.id && styles.itemMenuActivo]} onPress={() => { setPestana(elemento.id); setMenuAbierto(false); }}>
+              <Text style={[styles.itemMenuTexto, pestana === elemento.id && styles.itemMenuTextoActivo]}>{elemento.id === 'inicio' ? '⌂' : elemento.id === 'menu' ? '♨' : elemento.id === 'sensores' ? '⌁' : elemento.id === 'nuevo' ? '+' : elemento.id === 'carrito' ? '▣' : elemento.id === 'asistente' ? '✦' : '☎'}  {elemento.texto}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>}
+
+      {pestana === 'inicio' && <PantallaInicio cantidad={catalogo.length} onExplorar={() => setPestana('menu')} />}
+
+      {pestana !== 'inicio' && pestana !== 'contacto' && <View style={styles.tituloSeccion}><Text style={styles.tituloSeccionTexto}>{pestana === 'menu' ? 'Nuestro menú' : pestana === 'sensores' ? 'Experiencia' : pestana === 'nuevo' ? 'Nuevo platillo' : pestana === 'carrito' ? 'Tu pedido' : 'Asistente'}</Text></View>}
 
       {pestana === 'menu' && <View style={[styles.resumenFavoritos, resumenCompacto && styles.resumenFavoritosCompacto]}>
         <View style={styles.textoResumenFavoritos}>
@@ -273,8 +278,23 @@ export default function App() {
       {pestana === 'nuevo' && <NuevoPlatilloCamara onCerrar={() => setPestana('menu')} onGuardar={guardarPlatoNuevo} />}
       {pestana === 'carrito' && <PantallaCarrito productos={catalogo} carrito={carrito} onCambiarCantidad={agregarAlCarrito} />}
       {pestana === 'asistente' && <AsistenteIA productos={catalogo} />}
+      {pestana === 'contacto' && <View style={styles.panelContacto}><Text style={styles.tituloResumen}>Contacto</Text><Text style={styles.aviso}>¿Necesitas ayuda con tu pedido? Llama a nuestro equipo.</Text><Text style={styles.telefonoContacto}>☎  Atención en el restaurante</Text></View>}
     </View>
   );
+}
+
+function PantallaInicio({ cantidad, onExplorar }) {
+  const { width } = useWindowDimensions();
+  let tamanoTitulo = 34;
+  if (width >= 900) tamanoTitulo = 60;
+  else if (width >= 600) tamanoTitulo = 46;
+  return <View style={styles.portada}>
+    <Text style={[styles.tituloPortada, { fontSize: tamanoTitulo }]}>RESTAURANTE <Text style={styles.ampersand}>EL SABOR</Text></Text>
+    <View style={styles.adornito}><View style={styles.lineaAdorno} /><Text style={styles.hoja}>❧</Text><View style={styles.lineaAdorno} /></View>
+    <Text style={styles.subtituloPortada}>Tradición, sabor y calidad en cada plato</Text>
+    <Pressable accessibilityRole="button" style={styles.botonExplorar} onPress={onExplorar}><Text style={styles.textoBotonExplorar}>EXPLORAR MENÚ  <Text style={styles.flechaDorada}>➜</Text></Text></Pressable>
+    <Text style={styles.detallePortada}>{cantidad} preparaciones de nuestra cocina</Text>
+  </View>;
 }
 
 // Catálogo único: FlatList optimizado y columnas adaptadas al ancho disponible.
@@ -331,7 +351,7 @@ function PantallaAdaptativa({ items, totalProductos, soloFavoritos, favoritos, f
           <Tarjeta
             plato={item}
             etiqueta="Menú"
-            colorBorde={index % 2 === 0 ? '#00B894' : '#0984E3'}
+            colorBorde={index % 2 === 0 ? '#68845A' : '#6D4C1B'}
             adaptativa={columnas > 1}
             optimizada
             esFavorito={favoritos.includes(item.id)}
@@ -689,12 +709,39 @@ function Tarjeta({
 }
 
 const styles = StyleSheet.create({
+  barraSuperior: { height: 76, paddingHorizontal: 20, paddingTop: 16, flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: '#251309', zIndex: 3 },
+  botonMenu: { width: 52, height: 52, borderRadius: 26, borderWidth: 1, borderColor: '#805600', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2D190B' },
+  iconoMenu: { color: '#F3B900', fontSize: 22, fontWeight: '700' },
+  marcaMovil: { color: '#F2E6C9', fontFamily: 'serif', fontWeight: '700', fontSize: 20 },
+  marcaDorada: { color: '#F3B900' },
+  capaMenu: { ...StyleSheet.absoluteFillObject, zIndex: 20, flexDirection: 'row' },
+  fondoMenu: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.58)' },
+  panelMenu: { width: 300, maxWidth: '82%', height: '100%', paddingTop: 26, paddingHorizontal: 22, backgroundColor: '#241207', borderRightWidth: 1, borderColor: '#50320D', elevation: 12 },
+  logoMenu: { color: '#F2E6C9', fontFamily: 'serif', fontSize: 19, fontWeight: '700', marginBottom: 28, paddingHorizontal: 8 },
+  itemMenu: { minHeight: 52, justifyContent: 'center', paddingHorizontal: 14, marginBottom: 7, borderRadius: 12 },
+  itemMenuActivo: { backgroundColor: '#38220E', borderLeftWidth: 2, borderLeftColor: '#F3B900' },
+  itemMenuTexto: { color: '#D8BD91', fontSize: 15, fontWeight: '600' },
+  itemMenuTextoActivo: { color: '#F3B900' },
+  portada: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, backgroundColor: '#28160C' },
+  tituloPortada: { color: '#F2E6C9', fontFamily: 'serif', fontSize: 60, fontWeight: '700', letterSpacing: 4, textAlign: 'center' },
+  ampersand: { color: '#F3B900', fontStyle: 'italic' },
+  adornito: { flexDirection: 'row', alignItems: 'center', gap: 14, width: 360, maxWidth: '80%', marginTop: 14 },
+  lineaAdorno: { flex: 1, height: 1, backgroundColor: '#63400F' },
+  hoja: { color: '#55A95B', fontSize: 19 },
+  subtituloPortada: { marginTop: 28, color: '#C7A978', fontSize: 16, letterSpacing: 2, textAlign: 'center' },
+  botonExplorar: { marginTop: 48, minHeight: 56, minWidth: 250, paddingHorizontal: 28, borderRadius: 30, borderWidth: 1, borderColor: '#B98600', alignItems: 'center', justifyContent: 'center', backgroundColor: '#301B0D' },
+  textoBotonExplorar: { color: '#F2E6C9', fontWeight: '800', letterSpacing: 1 },
+  flechaDorada: { color: '#F3B900', fontSize: 18 },
+  detallePortada: { color: '#8C7049', fontSize: 12, marginTop: 22 },
+  tituloSeccion: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 8, backgroundColor: '#28160C' },
+  tituloSeccionTexto: { color: '#F2E6C9', fontFamily: 'serif', fontSize: 25, fontWeight: '700' },
+  panelContacto: { flex: 1, padding: 24, gap: 14, backgroundColor: '#28160C' },
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FB',
+    backgroundColor: '#28160C',
   },
   encabezado: {
-    backgroundColor: '#1E1E2E',
+    backgroundColor: '#251309',
     paddingTop: 54,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -705,11 +752,11 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 27,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#F2E6C9',
   },
   subtitulo: {
     fontSize: 15,
-    color: '#C4C4D6',
+    color: '#C7A978',
     marginTop: 6,
   },
   pestanas: {
@@ -726,7 +773,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
     paddingVertical: 12,
     paddingHorizontal: 5,
-    backgroundColor: '#E0E0E8',
+    backgroundColor: '#38220E',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -735,16 +782,16 @@ const styles = StyleSheet.create({
   botonAsistente: { minHeight: 44, marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: '#E0EDF3' },
   textoBotonAsistente: { color: '#15334E', fontWeight: '700' },
   pestanaActiva: {
-    backgroundColor: '#E63946',
+    backgroundColor: '#8A6500',
     elevation: 3,
   },
   textoPestana: {
-    color: '#454552',
+    color: '#D8BD91',
     fontWeight: 'bold',
     fontSize: 14,
   },
   textoPestanaActivo: {
-    color: '#FFFFFF',
+    color: '#38220E',
   },
   lista: {
     flex: 1,
@@ -758,7 +805,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   resumen: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#38220E',
     padding: 16,
     borderRadius: 14,
     marginBottom: 8,
@@ -773,20 +820,20 @@ const styles = StyleSheet.create({
     columnGap: 12,
   },
   tituloResumen: {
-    color: '#1E1E2E',
+    color: '#F2E6C9',
     fontWeight: 'bold',
     fontSize: 17,
     marginRight: 8,
   },
   datoResumen: {
-    color: '#55596B',
+    color: '#C7A978',
     fontSize: 14,
   },
   tarjeta: {
     marginTop: 12,
     marginHorizontal: 4,
     padding: 15,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#38220E',
     borderRadius: 14,
     borderLeftWidth: 6,
     elevation: 2,
@@ -806,10 +853,10 @@ const styles = StyleSheet.create({
     minWidth: 0,
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1E1E2E',
+    color: '#F2E6C9',
   },
   descripcion: {
-    color: '#7A7A8C',
+    color: '#C7A978',
     marginTop: 6,
     fontSize: 13,
   },
@@ -817,7 +864,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 'bold',
     marginTop: 9,
-    color: '#E63946',
+    color: '#8A6500',
   },
   resumenFavoritos: {
     flexDirection: 'row',
@@ -829,50 +876,52 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     padding: 12,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#38220E',
     elevation: 1,
   },
   resumenFavoritosCompacto: { alignItems: 'stretch' },
   textoResumenFavoritos: { flex: 1, minWidth: 150, paddingRight: 8 },
-  tituloFavoritos: { color: '#1E1E2E', fontWeight: '700' },
-  estadoFavoritos: { color: '#55596B', fontSize: 12, marginTop: 3 },
-  botonVerFavoritos: { minHeight: 44, justifyContent: 'center', paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#E8F2FF' },
-  textoVerFavoritos: { color: '#0759A5', fontWeight: '700', fontSize: 12 },
-  botonEliminarFavoritos: { minHeight: 44, justifyContent: 'center', paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#FDE2E4' },
-  textoEliminarFavoritos: { color: '#B42332', fontWeight: '700', fontSize: 12 },
-  botonFavorito: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginTop: 10, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#FDE2E4' },
-  botonFavoritoActivo: { backgroundColor: '#E63946' },
+  tituloFavoritos: { color: '#F2E6C9', fontWeight: '700' },
+  estadoFavoritos: { color: '#C7A978', fontSize: 12, marginTop: 3 },
+  botonVerFavoritos: { minHeight: 44, justifyContent: 'center', paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#493016' },
+  textoVerFavoritos: { color: '#F3B900', fontWeight: '700', fontSize: 12 },
+  botonEliminarFavoritos: { minHeight: 44, justifyContent: 'center', paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#493016' },
+  textoEliminarFavoritos: { color: '#E8D5B1', fontWeight: '700', fontSize: 12 },
+  botonFavorito: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginTop: 10, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#493016' },
+  botonFavoritoActivo: { backgroundColor: '#8A6500' },
   fotoPlato: { width: '100%', height: 130, borderRadius: 10, marginBottom: 10 },
-  botonCarrito: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginTop: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#E8F2FF' },
-  textoBotonCarrito: { color: '#0759A5', fontWeight: '700', fontSize: 12 },
-  tarjetaMesero: { padding: 14, borderRadius: 12, backgroundColor: '#FFFFFF', gap: 9 },
-  mensajeMesero: { color: '#15334E', fontWeight: '700', lineHeight: 20 },
-  botonMesero: { minHeight: 46, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 14, borderRadius: 9, backgroundColor: '#F77F00' },
-  itemCarrito: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, marginTop: 10, borderRadius: 12, backgroundColor: '#FFFFFF' },
+  botonCarrito: { minHeight: 44, alignSelf: 'flex-start', justifyContent: 'center', marginTop: 9, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#493016' },
+  textoBotonCarrito: { color: '#F3B900', fontWeight: '700', fontSize: 12 },
+  tarjetaMesero: { padding: 14, borderRadius: 12, backgroundColor: '#38220E', gap: 9 },
+  mensajeMesero: { color: '#F2E6C9', fontWeight: '700', lineHeight: 20 },
+  aviso: { color: '#C7A978', lineHeight: 21, marginVertical: 6 },
+  telefonoContacto: { color: '#F3B900', fontSize: 17, fontWeight: '700', marginTop: 12 },
+  botonMesero: { minHeight: 46, alignSelf: 'flex-start', justifyContent: 'center', paddingHorizontal: 14, borderRadius: 9, backgroundColor: '#8A6500' },
+  itemCarrito: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, marginTop: 10, borderRadius: 12, backgroundColor: '#38220E' },
   textoItemCarrito: { flex: 1, minWidth: 0 },
-  controlCantidad: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 21, backgroundColor: '#FDE2E4' },
-  controlCantidadTexto: { fontSize: 22, color: '#8B2630', fontWeight: '800' },
-  cantidadTexto: { minWidth: 20, textAlign: 'center', fontWeight: '800', color: '#1E1E2E' },
-  totalCarrito: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, padding: 14, borderRadius: 12, backgroundColor: '#FFFFFF' },
-  textoBotonFavorito: { color: '#8B2630', fontWeight: '700', fontSize: 12 },
-  textoBotonFavoritoActivo: { color: '#FFFFFF' },
+  controlCantidad: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 21, backgroundColor: '#493016' },
+  controlCantidadTexto: { fontSize: 22, color: '#E8D5B1', fontWeight: '800' },
+  cantidadTexto: { minWidth: 20, textAlign: 'center', fontWeight: '800', color: '#F2E6C9' },
+  totalCarrito: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, padding: 14, borderRadius: 12, backgroundColor: '#38220E' },
+  textoBotonFavorito: { color: '#E8D5B1', fontWeight: '700', fontSize: 12 },
+  textoBotonFavoritoActivo: { color: '#38220E' },
   botonDeshabilitado: { opacity: 0.5 },
-  vacioFavoritos: { marginTop: 12, marginHorizontal: 4, padding: 20, backgroundColor: '#FFFFFF', borderRadius: 14, alignItems: 'flex-start', gap: 8, elevation: 2 },
-  tituloVacioFavoritos: { color: '#1E1E2E', fontSize: 17, fontWeight: '700' },
-  textoVacioFavoritos: { color: '#55596B', lineHeight: 21 },
-  botonVacioFavoritos: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, marginTop: 4, borderRadius: 8, backgroundColor: '#E63946' },
-  textoBotonVacioFavoritos: { color: '#FFFFFF', fontWeight: '700' },
+  vacioFavoritos: { marginTop: 12, marginHorizontal: 4, padding: 20, backgroundColor: '#38220E', borderRadius: 14, alignItems: 'flex-start', gap: 8, elevation: 2 },
+  tituloVacioFavoritos: { color: '#F2E6C9', fontSize: 17, fontWeight: '700' },
+  textoVacioFavoritos: { color: '#C7A978', lineHeight: 21 },
+  botonVacioFavoritos: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, marginTop: 4, borderRadius: 8, backgroundColor: '#8A6500' },
+  textoBotonVacioFavoritos: { color: '#38220E', fontWeight: '700' },
   badge: {
-    backgroundColor: '#E63946',
+    backgroundColor: '#8A6500',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   badgeOptimizada: {
-    backgroundColor: '#0984E3',
+    backgroundColor: '#6D4C1B',
   },
   badgeTexto: {
-    color: '#FFFFFF',
+    color: '#38220E',
     fontSize: 10,
     fontWeight: 'bold',
   },
@@ -880,27 +929,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   // Estilos compartidos por la pantalla de sensores, con la paleta del restaurante.
-  boton: { paddingVertical: 12, paddingHorizontal: 14, margin: 4, borderRadius: 10, backgroundColor: '#FDE2E4' },
-  textoControl: { color: '#1E1E2E', fontWeight: '700' },
-  tituloResumen: { color: '#1E1E2E', fontWeight: 'bold', fontSize: 19, marginBottom: 8 },
+  boton: { paddingVertical: 12, paddingHorizontal: 14, margin: 4, borderRadius: 10, backgroundColor: '#493016' },
+  textoControl: { color: '#F2E6C9', fontWeight: '700' },
+  tituloResumen: { color: '#F2E6C9', fontWeight: 'bold', fontSize: 19, marginBottom: 8 },
   controlesSensor: { flexDirection: 'row', flexWrap: 'wrap', marginVertical: 8 },
-  botonControlSensor: { alignSelf: 'flex-start', backgroundColor: '#F77F00' },
-  estadoSensor: { marginVertical: 10, color: '#1E1E2E', fontWeight: '600' },
-  origen: { color: '#55596B', marginBottom: 4 },
-  lectura: { color: '#55596B', marginTop: 4, fontSize: 16 },
+  botonControlSensor: { alignSelf: 'flex-start', backgroundColor: '#8A6500' },
+  estadoSensor: { marginVertical: 10, color: '#F2E6C9', fontWeight: '600' },
+  origen: { color: '#C7A978', marginBottom: 4 },
+  lectura: { color: '#C7A978', marginTop: 4, fontSize: 16 },
   panelSensor: { padding: 16, paddingBottom: 32 },
-  mensajeInclinacion: { marginTop: 14, padding: 12, borderRadius: 10, backgroundColor: '#FFF1D6' },
-  mensajeCentro: { backgroundColor: '#DDF5E8' },
-  mensajeInclinado: { backgroundColor: '#FDE2E4' },
-  mensajeInclinacionTitulo: { color: '#1E1E2E', fontWeight: '700' },
-  mensajeInclinacionTexto: { color: '#55596B', marginTop: 4 },
-  nivel: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 16, padding: 12, borderRadius: 12, backgroundColor: '#FFFFFF' },
-  etiquetaNivel: { color: '#55596B', fontSize: 12 },
-  zonaNivel: { flex: 1, height: 18, borderRadius: 9, backgroundColor: '#E5E5EC' },
-  zonaNivelCentro: { backgroundColor: '#DDF5E8' },
-  zonaNivelActiva: { backgroundColor: '#00B894' },
-  zonaNivelAlerta: { backgroundColor: '#E63946' },
+  mensajeInclinacion: { marginTop: 14, padding: 12, borderRadius: 10, backgroundColor: '#63400F' },
+  mensajeCentro: { backgroundColor: '#435138' },
+  mensajeInclinado: { backgroundColor: '#493016' },
+  mensajeInclinacionTitulo: { color: '#F2E6C9', fontWeight: '700' },
+  mensajeInclinacionTexto: { color: '#C7A978', marginTop: 4 },
+  nivel: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 16, padding: 12, borderRadius: 12, backgroundColor: '#38220E' },
+  etiquetaNivel: { color: '#C7A978', fontSize: 12 },
+  zonaNivel: { flex: 1, height: 18, borderRadius: 9, backgroundColor: '#60482C' },
+  zonaNivelCentro: { backgroundColor: '#435138' },
+  zonaNivelActiva: { backgroundColor: '#68845A' },
+  zonaNivelAlerta: { backgroundColor: '#8A6500' },
 });
+
+
+
 
 
 

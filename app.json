@@ -17,14 +17,16 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
+    "experiments": {
+     "baseUrl": "/Restaurante_el_sabor"
+    }
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-status-bar"
     ]
-  }
-  "experiments": {
-  "baseUrl": "/Restaurante_el_sabor"
-}
+    
+
 }
