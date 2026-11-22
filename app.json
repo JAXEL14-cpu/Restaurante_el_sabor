@@ -3,9 +3,18 @@
     "name": "RendimientoApp",
     "slug": "RendimientoApp",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Selecciona una foto para agregarla a un plato del menú.",
+          "microphonePermission": false
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -17,16 +26,15 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
-    "experiments": {
-     "baseUrl": "/Restaurante_el_sabor"
-    }
-    },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Restaurante El Sabor",
+      "shortName": "El Sabor",
+      "output": "single",
+      "bundler": "metro"
     },
-    "plugins": [
-      "expo-status-bar"
-    ]
-    
-
+    "experiments": {
+      "baseUrl": "/Restaurante_el_sabor"
+    }
+  }
 }
