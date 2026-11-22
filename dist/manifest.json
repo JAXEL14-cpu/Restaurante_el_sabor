@@ -1,19 +1,18 @@
 {
-  "name": "Restaurante El Sabor",
-  "short_name": "El Sabor",
-  "start_url": "./",
-  "scope": "./",
+  "name": "El sabor",
+  "short_name": "Restaurante El Sabor",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#251309",
-  "background_color": "#28160C",
+  "theme_color": "#0F172A",
+  "background_color": "#F8FAFC",
   "icons": [
     {
-      "src": "./logo192.png",
+      "src": "/logo192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./logo512.png",
+      "src": "/logo512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
